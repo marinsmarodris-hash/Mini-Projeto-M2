@@ -1,6 +1,6 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const musicaRouter = require('./routes/musicaRoutes');
+import express from 'express';
+import sequelize from './config/sequelize.js';
+import musicaRouter from './routes/musicaRoutes.js';
 
 const app = express();
 const port = 3000;
@@ -8,21 +8,22 @@ const port = 3000;
 // Middleware para receber JSON
 app.use(express.json());
 
-// Rotas
+// Rotas principais
 app.use('/api', musicaRouter);
 
-// Rota raiz para teste
+// Rota raiz
 app.get('/', (req, res) => {
   res.send('Servidor funcionando!');
 });
 
-// Conexão com MongoDB Atlas
-mongoose.connect(
-  'mongodb+srv://marinsmarodris_db_user:Halloween123@cluster0.cjki31e.mongodb.net/meuBanco?retryWrites=true&w=majority',
-  { useNewUrlParser: true, useUnifiedTopology: true }
-)
-.then(() => {
-  console.log('MongoDB conectado!');
-  app.listen(port, () => console.log(`Servidor rodando na porta ${port}`));
-})
-.catch(err => console.log('Erro ao conectar no MongoDB:', err));
+// Conexão com o banco de dados
+sequelize.sync()
+  .then(() => {
+    console.log('Banco de dados conectado com Sequelize!');
+    app.listen(port, () => {
+      console.log(`Servidor rodando na porta ${port}`);
+    });
+  })
+  .catch(err => {
+    console.error('Erro ao conectar com o banco de dados:', err);
+  });
